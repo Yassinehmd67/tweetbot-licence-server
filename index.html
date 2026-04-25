@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تفعيل البوت</title>
+
+<style>
+    body {
+        font-family: Arial;
+        background: #f3f6fb;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+
+    .box {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        width: 350px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+
+    h2 {
+        margin-bottom: 20px;
+    }
+
+    input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        background: #2563eb;
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    button:hover {
+        background: #1d4ed8;
+    }
+
+    .result {
+        margin-top: 15px;
+        font-weight: bold;
+        word-break: break-word;
+    }
+
+    .error {
+        color: red;
+    }
+
+    .success {
+        color: green;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="box">
+    <h2>تفعيل البوت</h2>
+
+    <input id="orderId" placeholder="Order ID">
+    <input id="email" placeholder="Email (اختياري)">
+    <input id="machineId" placeholder="Machine ID">
+
+    <button onclick="activate()">تفعيل</button>
+
+    <div id="result" class="result"></div>
+</div>
+
+<script>
+async function activate() {
+    const orderId = document.getElementById("orderId").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const machineId = document.getElementById("machineId").value.trim();
+
+    const resultBox = document.getElementById("result");
+    resultBox.innerHTML = "⏳ جاري التفعيل...";
+    resultBox.className = "result";
+
+    try {
+        const res = await fetch("/api/activate", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ orderId, email, machineId })
+        });
+
+        const data = await res.json();
+
+        if (data.ok) {
+            resultBox.className = "result success";
+            resultBox.innerHTML = "✅ License Key:<br>" + data.licenseKey;
+        } else {
+            resultBox.className = "result error";
+            resultBox.innerHTML = "❌ " + data.error;
+        }
+
+    } catch (e) {
+        resultBox.className = "result error";
+        resultBox.innerHTML = "❌ خطأ في الاتصال بالسيرفر";
+    }
+}
+</script>
+
+</body>
+</html>
