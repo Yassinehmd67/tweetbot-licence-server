@@ -25,37 +25,50 @@ function generateLicense(machineId, secretSalt) {
 export default async function handler(req, res) {
   try {
     if (req.method !== "POST") {
-      return res.status(405).json({ error: "Method not allowed" });
+      return res.status(405).json({
+        ok: false,
+        error: "Method not allowed",
+      });
     }
 
     const { orderId, email, machineId } = req.body || {};
 
     if (!orderId || !machineId) {
       return res.status(400).json({
+        ok: false,
         error: "Order ID و Machine ID مطلوبان",
       });
     }
 
-    const order = await redis.get(`order:${orderId}`);
+    const normalizedOrderId = String(orderId).trim();
+    const normalizedEmail = String(email || "")
+      .trim()
+      .toLowerCase();
+    const normalizedMachineId = String(machineId).trim();
+
+    const order = await redis.get(`order:${normalizedOrderId}`);
 
     if (!order) {
       return res.status(404).json({
+        ok: false,
         error: "لم يتم العثور على الطلب",
       });
     }
 
     if (order.used) {
       return res.status(403).json({
+        ok: false,
         error: "تم استخدام هذا الطلب مسبقًا",
       });
     }
 
-    if (
-      email &&
-      order.email &&
-      email.toLowerCase() !== order.email.toLowerCase()
-    ) {
+    const orderEmail = String(order.email || "")
+      .trim()
+      .toLowerCase();
+
+    if (normalizedEmail && orderEmail && normalizedEmail !== orderEmail) {
       return res.status(403).json({
+        ok: false,
         error: "البريد الإلكتروني غير مطابق للطلب",
       });
     }
@@ -64,27 +77,48 @@ export default async function handler(req, res) {
 
     if (!secretSalt) {
       return res.status(500).json({
+        ok: false,
         error: "SECRET_SALT غير مضبوط في السيرفر",
       });
     }
 
-    const licenseKey = generateLicense(machineId.trim(), secretSalt);
+    const licenseKey = generateLicense(normalizedMachineId, secretSalt);
 
-    await redis.set(`order:${orderId}`, {
+    const activatedAt = new Date();
+    const expiresAt = new Date();
+    expiresAt.setMonth(expiresAt.getMonth() + 5);
+
+    await redis.set(`order:${normalizedOrderId}`, {
       ...order,
+      orderId: normalizedOrderId,
+      email: orderEmail || normalizedEmail,
       used: true,
-      machineId: machineId.trim(),
+      machineId: normalizedMachineId,
       licenseKey,
-      activatedAt: new Date().toISOString(),
+      activatedAt: activatedAt.toISOString(),
+      expiresAt: expiresAt.toISOString(),
+    });
+
+    await redis.set(`license:${licenseKey}`, {
+      licenseKey,
+      orderId: normalizedOrderId,
+      email: orderEmail || normalizedEmail,
+      machineId: normalizedMachineId,
+      activatedAt: activatedAt.toISOString(),
+      expiresAt: expiresAt.toISOString(),
+      active: true,
     });
 
     return res.status(200).json({
       ok: true,
       licenseKey,
+      machineId: normalizedMachineId,
+      expiresAt: expiresAt.toISOString(),
       duration: "5 months",
     });
   } catch (e) {
     return res.status(500).json({
+      ok: false,
       error: "Server error",
       details: e.message,
     });

@@ -7,34 +7,44 @@
 
 <style>
     body {
-        font-family: Arial;
+        font-family: Arial, sans-serif;
+        direction: rtl;
         background: #f3f6fb;
+        min-height: 100vh;
+        margin: 0;
+        padding: 30px;
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh;
-        margin: 0;
     }
 
     .box {
         background: white;
         padding: 30px;
-        border-radius: 12px;
-        width: 350px;
+        border-radius: 16px;
+        width: 420px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         text-align: center;
     }
 
     h2 {
+        margin-top: 0;
         margin-bottom: 20px;
+    }
+
+    h3 {
+        margin-top: 28px;
+        margin-bottom: 12px;
     }
 
     input {
         width: 100%;
-        padding: 10px;
+        padding: 12px;
         margin-bottom: 10px;
         border: 1px solid #ddd;
-        border-radius: 8px;
+        border-radius: 10px;
+        box-sizing: border-box;
+        font-size: 15px;
     }
 
     button {
@@ -43,27 +53,49 @@
         border: none;
         background: #2563eb;
         color: white;
-        border-radius: 8px;
+        border-radius: 10px;
         cursor: pointer;
         font-weight: bold;
+        font-size: 15px;
     }
 
     button:hover {
         background: #1d4ed8;
     }
 
+    .secondary {
+        background: #16a34a;
+    }
+
+    .secondary:hover {
+        background: #15803d;
+    }
+
     .result {
         margin-top: 15px;
         font-weight: bold;
         word-break: break-word;
+        line-height: 1.7;
     }
 
     .error {
-        color: red;
+        color: #dc2626;
     }
 
     .success {
-        color: green;
+        color: #16a34a;
+    }
+
+    .muted {
+        color: #6b7280;
+        font-size: 13px;
+        margin-bottom: 18px;
+    }
+
+    hr {
+        border: none;
+        border-top: 1px solid #e5e7eb;
+        margin: 24px 0;
     }
 </style>
 </head>
@@ -72,14 +104,27 @@
 
 <div class="box">
     <h2>تفعيل البوت</h2>
+    <p class="muted">أدخل بيانات الشراء و Machine ID للحصول على مفتاح الترخيص.</p>
 
     <input id="orderId" placeholder="Order ID">
-    <input id="email" placeholder="Email (اختياري)">
+    <input id="email" placeholder="Email">
     <input id="machineId" placeholder="Machine ID">
 
-    <button onclick="activate()">تفعيل</button>
+    <button onclick="activate()">تفعيل وإنشاء المفتاح</button>
 
-    <div id="result" class="result"></div>
+    <div id="activateResult" class="result"></div>
+
+    <hr>
+
+    <h3>اختبار الترخيص</h3>
+    <p class="muted">استخدم هذا القسم للتأكد أن المفتاح محفوظ وصالح.</p>
+
+    <input id="licenseKey" placeholder="License Key">
+    <input id="checkMachineId" placeholder="Machine ID">
+
+    <button class="secondary" onclick="validateLicense()">اختبار الترخيص</button>
+
+    <div id="validateResult" class="result"></div>
 </div>
 
 <script>
@@ -88,7 +133,7 @@ async function activate() {
     const email = document.getElementById("email").value.trim();
     const machineId = document.getElementById("machineId").value.trim();
 
-    const resultBox = document.getElementById("result");
+    const resultBox = document.getElementById("activateResult");
     resultBox.innerHTML = "⏳ جاري التفعيل...";
     resultBox.className = "result";
 
@@ -103,10 +148,54 @@ async function activate() {
 
         if (data.ok) {
             resultBox.className = "result success";
-            resultBox.innerHTML = "✅ License Key:<br>" + data.licenseKey;
+            resultBox.innerHTML =
+                "✅ License Key:<br>" +
+                data.licenseKey +
+                "<br><br>ينتهي في:<br>" +
+                data.expiresAt;
+
+            document.getElementById("licenseKey").value = data.licenseKey;
+            document.getElementById("checkMachineId").value = machineId;
         } else {
             resultBox.className = "result error";
-            resultBox.innerHTML = "❌ " + data.error;
+            resultBox.innerHTML = "❌ " + (data.error || "فشل التفعيل");
+        }
+
+    } catch (e) {
+        resultBox.className = "result error";
+        resultBox.innerHTML = "❌ خطأ في الاتصال بالسيرفر";
+    }
+}
+
+async function validateLicense() {
+    const licenseKey = document.getElementById("licenseKey").value.trim();
+    const machineId = document.getElementById("checkMachineId").value.trim();
+
+    const resultBox = document.getElementById("validateResult");
+    resultBox.innerHTML = "⏳ جاري التحقق...";
+    resultBox.className = "result";
+
+    try {
+        const res = await fetch("/api/validate-license", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ licenseKey, machineId })
+        });
+
+        const data = await res.json();
+
+        if (data.valid) {
+            resultBox.className = "result success";
+            resultBox.innerHTML =
+                "✅ الترخيص صالح" +
+                "<br>Order ID: " + (data.orderId || "-") +
+                "<br>Email: " + (data.email || "-") +
+                "<br>ينتهي في: " + (data.expiresAt || "-");
+        } else {
+            resultBox.className = "result error";
+            resultBox.innerHTML =
+                "❌ الترخيص غير صالح" +
+                "<br>السبب: " + (data.message || data.reason || "غير معروف");
         }
 
     } catch (e) {
