@@ -1,168 +1,440 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Twitter Bot</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Twitter Bot - Automate Tweet Monitoring & Posting</title>
 
   <style>
+    :root {
+      --bg: #f4f7fb;
+      --dark: #0f172a;
+      --text: #111827;
+      --muted: #64748b;
+      --primary: #2563eb;
+      --success: #16a34a;
+      --border: #e5e7eb;
+      --card: #ffffff;
+      --shadow: 0 12px 35px rgba(15, 23, 42, 0.10);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f4f7fb;
-      color: #111827;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
     }
 
     .hero {
-      background: linear-gradient(135deg, #111827, #2563eb);
+      background: linear-gradient(135deg, #0f172a, #1d4ed8);
       color: white;
-      text-align: center;
       padding: 70px 20px;
+      text-align: center;
     }
 
-    .hero h1 {
-      font-size: 42px;
-      margin-bottom: 15px;
+    .hero-inner {
+      max-width: 980px;
+      margin: auto;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 44px;
+      line-height: 1.15;
+      margin: 0 0 18px;
     }
 
     .hero p {
-      font-size: 20px;
       max-width: 760px;
-      margin: auto;
-      line-height: 1.6;
+      margin: 0 auto 28px;
+      font-size: 20px;
+      color: #e5e7eb;
     }
 
     .btn {
       display: inline-block;
-      margin-top: 30px;
-      background: #22c55e;
+      background: var(--success);
       color: white;
       padding: 16px 30px;
-      border-radius: 12px;
+      border-radius: 14px;
+      font-weight: 800;
       font-size: 18px;
-      font-weight: bold;
       text-decoration: none;
+      box-shadow: 0 12px 25px rgba(22, 163, 74, 0.28);
+    }
+
+    .btn:hover {
+      background: #15803d;
+    }
+
+    .secondary-note {
+      margin-top: 14px;
+      font-size: 14px;
+      color: #dbeafe;
     }
 
     .section {
-      max-width: 1000px;
-      margin: 40px auto;
+      max-width: 1080px;
+      margin: 38px auto;
       padding: 0 20px;
     }
 
     .card {
-      background: white;
-      border-radius: 18px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
       padding: 30px;
+      box-shadow: var(--shadow);
       margin-bottom: 24px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
     }
 
     h2 {
       font-size: 28px;
-      margin-top: 0;
+      margin: 0 0 14px;
+    }
+
+    p {
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .feature {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .feature strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text);
+      font-size: 17px;
     }
 
     ul {
-      line-height: 2;
-      font-size: 18px;
+      padding-left: 22px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    li {
+      margin-bottom: 10px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .step {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 15px;
+      color: var(--muted);
+    }
+
+    .step b {
+      display: block;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+
+    .price-box {
+      text-align: center;
+      background: linear-gradient(180deg, #ffffff, #f8fafc);
     }
 
     .price {
-      text-align: center;
-      font-size: 34px;
-      font-weight: bold;
-      color: #2563eb;
+      font-size: 42px;
+      font-weight: 900;
+      color: var(--primary);
+      margin: 10px 0;
     }
 
-    .guarantee {
-      text-align: center;
-      color: #166534;
-      font-weight: bold;
-      font-size: 18px;
+    .small {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .warning {
+      background: #fff7ed;
+      border-color: #fed7aa;
     }
 
     .footer {
       text-align: center;
-      padding: 30px;
-      color: #6b7280;
+      padding: 35px 20px;
+      color: var(--muted);
       font-size: 14px;
+    }
+
+    .footer a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 700;
+      margin: 0 8px;
+    }
+
+    @media (max-width: 900px) {
+      h1 {
+        font-size: 34px;
+      }
+
+      .grid,
+      .steps {
+        grid-template-columns: 1fr;
+      }
+
+      .hero p {
+        font-size: 18px;
+      }
     }
   </style>
 </head>
 
 <body>
 
-  <div class="hero">
-    <h1>AI Twitter Bot</h1>
-    <p>
-      Automate tweet monitoring, smart replies, and promotional posting with a simple desktop bot built for creators, marketers, and affiliate campaigns.
-    </p>
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="badge">Windows Desktop Automation Tool</div>
 
-    <a class="btn" href="https://aibuilders.pay.clickbank.net/?cbitems=tweetbot-pro">
-      Buy Now
-    </a>
-  </div>
+      <h1>AI Twitter Bot for Monitoring, Posting and Reply Workflows</h1>
 
-  <div class="section">
+      <p>
+        AI Twitter Bot helps creators, marketers and affiliate users monitor selected X/Twitter accounts,
+        detect new posts, prepare promotional content, manage Buffer publishing, and support controlled reply workflows.
+      </p>
+
+      <a class="btn" href="https://aibuilders.pay.clickbank.net/?cbitems=tweetbot-pro">
+        Buy Now - $49.97
+      </a>
+
+      <div class="secondary-note">
+        One-time payment • License activation required • 30-day ClickBank money-back guarantee
+      </div>
+    </div>
+  </section>
+
+  <main class="section">
 
     <div class="card">
-      <h2>What Is AI Twitter Bot?</h2>
+      <h2>What is AI Twitter Bot?</h2>
       <p>
-        AI Twitter Bot is a Windows desktop tool that helps you monitor selected X/Twitter accounts,
-        detect new tweets, prepare promotional posts, and manage reply/posting workflows from one dashboard.
+        AI Twitter Bot is a Windows desktop application designed to help users organize Twitter/X monitoring
+        and promotional workflows from one dashboard. It can track selected accounts, detect new tweets,
+        prepare publishing actions, connect with Buffer for posting, and optionally use AI rewrite settings
+        to create better message variations.
+      </p>
+
+      <p>
+        The tool is built for users who want a simple local desktop system for monitoring, content preparation,
+        and structured posting workflows without manually checking accounts all day.
       </p>
     </div>
 
     <div class="card">
       <h2>Main Features</h2>
+
+      <div class="grid">
+        <div class="feature">
+          <strong>Account Monitoring</strong>
+          Monitor selected X/Twitter accounts and detect new tweets automatically.
+        </div>
+
+        <div class="feature">
+          <strong>Buffer Publishing</strong>
+          Connect Buffer profiles and manage posting workflows from the bot dashboard.
+        </div>
+
+        <div class="feature">
+          <strong>Reply Workflow Support</strong>
+          Use a saved local browser session after logging in once through the setup tool.
+        </div>
+
+        <div class="feature">
+          <strong>AI Rewrite Options</strong>
+          Enable optional rewrite styles for more natural post and reply variations.
+        </div>
+
+        <div class="feature">
+          <strong>License Protection</strong>
+          Activate the bot using your license key and Machine ID after purchase.
+        </div>
+
+        <div class="feature">
+          <strong>Local Dashboard</strong>
+          Manage profiles, tracked accounts, status, logs and settings in one interface.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Who is this for?</h2>
       <ul>
-        <li>Monitor selected X/Twitter accounts automatically</li>
-        <li>Detect new tweets and prepare posting actions</li>
-        <li>Connect Buffer for publishing workflows</li>
-        <li>Optional AI rewrite for better post variations</li>
-        <li>Reply workflow support after logging in once</li>
-        <li>License-based activation system</li>
-        <li>Simple dashboard for managing profiles and accounts</li>
+        <li>Affiliate marketers who promote offers using X/Twitter traffic workflows.</li>
+        <li>Creators who want to monitor specific accounts and react faster to new posts.</li>
+        <li>Small teams managing promotional posting with Buffer.</li>
+        <li>Users who want a local desktop automation assistant rather than a complicated SaaS dashboard.</li>
       </ul>
     </div>
 
     <div class="card">
-      <h2>How It Works</h2>
-      <ul>
-        <li>Purchase AI Twitter Bot</li>
-        <li>Download the software from the delivery page</li>
-        <li>Open the bot and copy your Machine ID</li>
-        <li>Activate your license online</li>
-        <li>Connect your Buffer account and start using the bot</li>
-      </ul>
+      <h2>How it works</h2>
+
+      <div class="steps">
+        <div class="step">
+          <b>Step 1</b>
+          Purchase AI Twitter Bot through ClickBank.
+        </div>
+
+        <div class="step">
+          <b>Step 2</b>
+          Download the Windows package from the delivery page.
+        </div>
+
+        <div class="step">
+          <b>Step 3</b>
+          Run the reply login setup if you want to use reply features.
+        </div>
+
+        <div class="step">
+          <b>Step 4</b>
+          Open the bot, copy your Machine ID and activate your license.
+        </div>
+
+        <div class="step">
+          <b>Step 5</b>
+          Connect Buffer, add monitored accounts and start using the dashboard.
+        </div>
+      </div>
     </div>
 
-    <div class="card">
-      <h2>Important Note About Auto Replies</h2>
+    <div class="card warning">
+      <h2>Important note about X/Twitter replies</h2>
       <p>
-        Auto-reply features depend on your X/Twitter account activity, trust level, and platform protections.
-        To use replies, you must run the reply login setup once and log in manually to your X/Twitter account.
+        Auto-reply behavior depends on your X/Twitter account activity, trust level, limits and platform protections.
+        To use reply features, you must run the included reply login setup tool once and manually log in to your
+        own X/Twitter account. The session is saved locally on your computer.
+      </p>
+
+      <p>
+        AI Twitter Bot is not affiliated with, endorsed by, or officially connected to X/Twitter.
+        Users are responsible for using the tool responsibly and following platform rules.
       </p>
     </div>
 
     <div class="card">
-      <h2>Price</h2>
-      <div class="price">$49 One-Time Payment</div>
-      <p class="guarantee">Protected by ClickBank's 30-Day Money Back Guarantee</p>
-
-      <div style="text-align:center;">
-        <a class="btn" href="https://aibuilders.pay.clickbank.net/?cbitems=tweetbot-pro">
-          Get Instant Access
-        </a>
-      </div>
+      <h2>What you receive</h2>
+      <ul>
+        <li>AI Twitter Bot Windows application package.</li>
+        <li>Reply login setup tool.</li>
+        <li>License activation access.</li>
+        <li>Basic setup instructions.</li>
+        <li>Access to future improvements when available.</li>
+      </ul>
     </div>
 
-  </div>
+    <div class="card">
+      <h2>System requirements</h2>
+      <ul>
+        <li>Windows 10 or Windows 11.</li>
+        <li>Internet connection.</li>
+        <li>Buffer account for publishing workflows.</li>
+        <li>X/Twitter account if you want to use reply features.</li>
+      </ul>
+    </div>
 
-  <div class="footer">
-    © 2026 AI Twitter Bot. All rights reserved.
-  </div>
+    <div class="card">
+      <h2>Important Disclaimer</h2>
+
+      <p>
+        AI Twitter Bot is a desktop workflow tool designed to assist with monitoring,
+        content preparation and posting automation.
+      </p>
+
+      <p>
+        Results depend on multiple factors including your niche, audience,
+        account activity and compliance with platform rules.
+      </p>
+
+      <p>
+        This software does not guarantee specific earnings, traffic levels or engagement results.
+      </p>
+
+      <p>
+        AI Twitter Bot is not affiliated with, endorsed by, or officially connected to X (Twitter).
+      </p>
+    </div>
+
+    <div class="card price-box">
+      <h2>Get AI Twitter Bot Today</h2>
+
+      <div class="price">$49.97</div>
+
+      <p>One-time payment. No monthly subscription.</p>
+
+      <a class="btn" href="https://aibuilders.pay.clickbank.net/?cbitems=tweetbot-pro">
+        Get Instant Access
+      </a>
+
+      <p class="small">
+        Your purchase is processed securely by ClickBank and protected by ClickBank's 30-day money-back guarantee.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Support</h2>
+
+      <p>
+        If you need help with download, activation or setup, please contact us at:
+      </p>
+
+      <p>
+        <strong>Email:</strong>
+        <a href="mailto:support@esms44.shop">support@esms44.shop</a>
+      </p>
+
+      <p>
+        Please include your order ID and a short description of your issue when requesting support.
+      </p>
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    © 2026 AI Twitter Bot.
+    <br><br>
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="terms.html">Terms of Service</a>
+    <a href="thank-you.html">Delivery Page</a>
+  </footer>
 
 </body>
 </html>
