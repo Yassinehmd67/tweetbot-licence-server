@@ -11,7 +11,7 @@ export default async function handler(req, res) {
       return res.status(405).json({
         valid: false,
         reason: "method_not_allowed",
-        message: "Method not allowed",
+        message: "Method not allowed.",
       });
     }
 
@@ -21,7 +21,7 @@ export default async function handler(req, res) {
       return res.status(400).json({
         valid: false,
         reason: "missing_data",
-        message: "License Key و Machine ID مطلوبان",
+        message: "License Key and Machine ID are required.",
       });
     }
 
@@ -34,7 +34,7 @@ export default async function handler(req, res) {
       return res.status(404).json({
         valid: false,
         reason: "not_found",
-        message: "الترخيص غير موجود",
+        message: "License was not found.",
       });
     }
 
@@ -42,7 +42,7 @@ export default async function handler(req, res) {
       return res.status(403).json({
         valid: false,
         reason: "inactive",
-        message: "الترخيص غير مفعل",
+        message: "License is not active.",
       });
     }
 
@@ -50,7 +50,7 @@ export default async function handler(req, res) {
       return res.status(403).json({
         valid: false,
         reason: "machine_mismatch",
-        message: "هذا الترخيص مرتبط بجهاز آخر",
+        message: "This license is linked to another device.",
       });
     }
 
@@ -62,7 +62,7 @@ export default async function handler(req, res) {
         return res.status(403).json({
           valid: false,
           reason: "expired",
-          message: "انتهت مدة الترخيص",
+          message: "License has expired.",
         });
       }
     }
@@ -80,7 +80,7 @@ export default async function handler(req, res) {
     return res.status(500).json({
       valid: false,
       reason: "server_error",
-      message: e.message,
+      message: "Server error. Please try again later.",
     });
   }
 }

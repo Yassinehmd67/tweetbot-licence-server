@@ -1,209 +1,239 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>تفعيل البوت</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetBot Activation</title>
 
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        direction: rtl;
-        background: #f3f6fb;
-        min-height: 100vh;
-        margin: 0;
-        padding: 30px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f6fb;
+            min-height: 100vh;
+            margin: 0;
+            padding: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-    .box {
-        background: white;
-        padding: 30px;
-        border-radius: 16px;
-        width: 420px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        text-align: center;
-    }
+        .box {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            width: 430px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+        }
 
-    h2 {
-        margin-top: 0;
-        margin-bottom: 20px;
-    }
+        .lang-switch {
+            position: absolute;
+            top: 12px;
+            inset-inline-end: 12px;
+            display: flex;
+            gap: 6px;
+        }
 
-    h3 {
-        margin-top: 28px;
-        margin-bottom: 12px;
-    }
+        .lang-switch button {
+            width: auto;
+            padding: 6px 10px;
+            margin: 0;
+            background: #111827;
+            font-size: 12px;
+        }
 
-    input {
-        width: 100%;
-        padding: 12px;
-        margin-bottom: 10px;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        box-sizing: border-box;
-        font-size: 15px;
-    }
+        h2 {
+            margin-top: 28px;
+            margin-bottom: 12px;
+        }
 
-    button {
-        width: 100%;
-        padding: 12px;
-        border: none;
-        background: #2563eb;
-        color: white;
-        border-radius: 10px;
-        cursor: pointer;
-        font-weight: bold;
-        font-size: 15px;
-    }
+        h3 {
+            margin-top: 28px;
+            margin-bottom: 12px;
+        }
 
-    button:hover {
-        background: #1d4ed8;
-    }
+        .muted {
+            color: #6b7280;
+            font-size: 13px;
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
 
-    .secondary {
-        background: #16a34a;
-    }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-size: 15px;
+            direction: ltr;
+        }
 
-    .secondary:hover {
-        background: #15803d;
-    }
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            background: #2563eb;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+        }
 
-    .result {
-        margin-top: 15px;
-        font-weight: bold;
-        word-break: break-word;
-        line-height: 1.7;
-    }
+        button:hover {
+            background: #1d4ed8;
+        }
 
-    .error {
-        color: #dc2626;
-    }
+        .secondary {
+            background: #16a34a;
+        }
 
-    .success {
-        color: #16a34a;
-    }
+        .secondary:hover {
+            background: #15803d;
+        }
 
-    .muted {
-        color: #6b7280;
-        font-size: 13px;
-        margin-bottom: 18px;
-    }
+        .result {
+            margin-top: 15px;
+            font-weight: bold;
+            word-break: break-word;
+            line-height: 1.7;
+        }
 
-    hr {
-        border: none;
-        border-top: 1px solid #e5e7eb;
-        margin: 24px 0;
-    }
-</style>
+        .error {
+            color: #dc2626;
+        }
+
+        .success {
+            color: #16a34a;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #e5e7eb;
+            margin: 24px 0;
+        }
+    </style>
 </head>
 
 <body>
+    <div class="box">
+        <div class="lang-switch">
+            <button type="button" onclick="setLang('en')">EN</button>
+            <button type="button" onclick="setLang('ar')">AR</button>
+        </div>
 
-<div class="box">
-    <h2>تفعيل البوت</h2>
-    <p class="muted">أدخل بيانات الشراء و Machine ID للحصول على مفتاح الترخيص.</p>
+        <h2 data-i18n="title">Activate TweetBot</h2>
+        <p class="muted" data-i18n="desc">
+            Enter your purchase details and Machine ID to generate your license key.
+        </p>
 
-    <input id="orderId" placeholder="Order ID">
-    <input id="email" placeholder="Email">
-    <input id="machineId" placeholder="Machine ID">
+        <input id="orderId" data-i18n-placeholder="order_id" placeholder="Order ID">
+        <input id="email" data-i18n-placeholder="email" placeholder="Email">
+        <input id="machineId" data-i18n-placeholder="machine_id" placeholder="Machine ID">
 
-    <button onclick="activate()">تفعيل وإنشاء المفتاح</button>
+        <button onclick="activate()" data-i18n="activate_btn">Activate & Generate Key</button>
 
-    <div id="activateResult" class="result"></div>
+        <div id="activateResult" class="result"></div>
 
-    <hr>
+        <hr>
 
-    <h3>اختبار الترخيص</h3>
-    <p class="muted">استخدم هذا القسم للتأكد أن المفتاح محفوظ وصالح.</p>
+        <h3 data-i18n="validate_title">Validate License</h3>
+        <p class="muted" data-i18n="validate_desc">
+            Verify your license key here.
+        </p>
 
-    <input id="licenseKey" placeholder="License Key">
-    <input id="checkMachineId" placeholder="Machine ID">
+        <input id="licenseKey" data-i18n-placeholder="license_key" placeholder="License Key">
+        <input id="checkMachineId" data-i18n-placeholder="machine_id" placeholder="Machine ID">
 
-    <button class="secondary" onclick="validateLicense()">اختبار الترخيص</button>
+        <button class="secondary" onclick="validateLicense()" data-i18n="validate_btn">Validate License</button>
 
-    <div id="validateResult" class="result"></div>
-</div>
+        <div id="validateResult" class="result"></div>
+    </div>
 
-<script>
-async function activate() {
-    const orderId = document.getElementById("orderId").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const machineId = document.getElementById("machineId").value.trim();
+    <script src="/lang.js"></script>
 
-    const resultBox = document.getElementById("activateResult");
-    resultBox.innerHTML = "⏳ جاري التفعيل...";
-    resultBox.className = "result";
+    <script>
+        async function activate() {
+            const orderId = document.getElementById("orderId").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const machineId = document.getElementById("machineId").value.trim();
 
-    try {
-        const res = await fetch("/api/activate", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({ orderId, email, machineId })
-        });
+            const resultBox = document.getElementById("activateResult");
+            resultBox.innerHTML = t("activating");
+            resultBox.className = "result";
 
-        const data = await res.json();
+            try {
+                const res = await fetch("/api/activate", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({ orderId, email, machineId })
+                });
 
-        if (data.ok) {
-            resultBox.className = "result success";
-            resultBox.innerHTML =
-                "✅ License Key:<br>" +
-                data.licenseKey +
-                "<br><br>ينتهي في:<br>" +
-                data.expiresAt;
+                const data = await res.json();
 
-            document.getElementById("licenseKey").value = data.licenseKey;
-            document.getElementById("checkMachineId").value = machineId;
-        } else {
-            resultBox.className = "result error";
-            resultBox.innerHTML = "❌ " + (data.error || "فشل التفعيل");
+                if (data.ok) {
+                    resultBox.className = "result success";
+                    resultBox.innerHTML =
+                        "✅ " + t("license_label") +
+                        "<br>" +
+                        data.licenseKey +
+                        "<br><br>" +
+                        t("expires_at") +
+                        ":<br>" +
+                        data.expiresAt;
+
+                    document.getElementById("licenseKey").value = data.licenseKey;
+                    document.getElementById("checkMachineId").value = machineId;
+                } else {
+                    resultBox.className = "result error";
+                    resultBox.innerHTML = "❌ " + (data.error || "Activation failed");
+                }
+
+            } catch (e) {
+                resultBox.className = "result error";
+                resultBox.innerHTML = "❌ " + t("server_error");
+            }
         }
 
-    } catch (e) {
-        resultBox.className = "result error";
-        resultBox.innerHTML = "❌ خطأ في الاتصال بالسيرفر";
-    }
-}
+        async function validateLicense() {
+            const licenseKey = document.getElementById("licenseKey").value.trim();
+            const machineId = document.getElementById("checkMachineId").value.trim();
 
-async function validateLicense() {
-    const licenseKey = document.getElementById("licenseKey").value.trim();
-    const machineId = document.getElementById("checkMachineId").value.trim();
+            const resultBox = document.getElementById("validateResult");
+            resultBox.innerHTML = t("validating");
+            resultBox.className = "result";
 
-    const resultBox = document.getElementById("validateResult");
-    resultBox.innerHTML = "⏳ جاري التحقق...";
-    resultBox.className = "result";
+            try {
+                const res = await fetch("/api/validate-license", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({ licenseKey, machineId })
+                });
 
-    try {
-        const res = await fetch("/api/validate-license", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({ licenseKey, machineId })
-        });
+                const data = await res.json();
 
-        const data = await res.json();
+                if (data.valid) {
+                    resultBox.className = "result success";
+                    resultBox.innerHTML =
+                        "✅ " + t("valid_license") +
+                        "<br>Order ID: " + (data.orderId || "-") +
+                        "<br>Email: " + (data.email || "-") +
+                        "<br>" + t("expires_at") + ": " + (data.expiresAt || "-");
+                } else {
+                    resultBox.className = "result error";
+                    resultBox.innerHTML =
+                        "❌ " + t("invalid_license") +
+                        "<br>" + t("reason") + ": " + (data.message || data.reason || "Unknown");
+                }
 
-        if (data.valid) {
-            resultBox.className = "result success";
-            resultBox.innerHTML =
-                "✅ الترخيص صالح" +
-                "<br>Order ID: " + (data.orderId || "-") +
-                "<br>Email: " + (data.email || "-") +
-                "<br>ينتهي في: " + (data.expiresAt || "-");
-        } else {
-            resultBox.className = "result error";
-            resultBox.innerHTML =
-                "❌ الترخيص غير صالح" +
-                "<br>السبب: " + (data.message || data.reason || "غير معروف");
+            } catch (e) {
+                resultBox.className = "result error";
+                resultBox.innerHTML = "❌ " + t("connection_error");
+            }
         }
-
-    } catch (e) {
-        resultBox.className = "result error";
-        resultBox.innerHTML = "❌ خطأ في الاتصال بالسيرفر";
-    }
-}
-</script>
-
+    </script>
 </body>
 </html>

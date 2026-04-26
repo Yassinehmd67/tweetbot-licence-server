@@ -36,7 +36,7 @@ export default async function handler(req, res) {
     if (!orderId || !machineId) {
       return res.status(400).json({
         ok: false,
-        error: "Order ID و Machine ID مطلوبان",
+        error: "Order ID and Machine ID are required.",
       });
     }
 
@@ -51,14 +51,14 @@ export default async function handler(req, res) {
     if (!order) {
       return res.status(404).json({
         ok: false,
-        error: "لم يتم العثور على الطلب",
+        error: "Order not found. Please check your Order ID.",
       });
     }
 
     if (order.used) {
       return res.status(403).json({
         ok: false,
-        error: "تم استخدام هذا الطلب مسبقًا",
+        error: "This order has already been used.",
       });
     }
 
@@ -69,7 +69,7 @@ export default async function handler(req, res) {
     if (normalizedEmail && orderEmail && normalizedEmail !== orderEmail) {
       return res.status(403).json({
         ok: false,
-        error: "البريد الإلكتروني غير مطابق للطلب",
+        error: "The email address does not match this order.",
       });
     }
 
@@ -78,7 +78,7 @@ export default async function handler(req, res) {
     if (!secretSalt) {
       return res.status(500).json({
         ok: false,
-        error: "SECRET_SALT غير مضبوط في السيرفر",
+        error: "License server is not configured correctly.",
       });
     }
 
@@ -119,7 +119,7 @@ export default async function handler(req, res) {
   } catch (e) {
     return res.status(500).json({
       ok: false,
-      error: "Server error",
+      error: "Server error. Please try again later.",
       details: e.message,
     });
   }

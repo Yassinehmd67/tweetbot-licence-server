@@ -11,6 +11,7 @@ function extractOrderData(body) {
       body.receipt ||
       body.receiptNumber ||
       body.orderId ||
+      body.order_id ||
       body.transactionId ||
       body.transaction_id ||
       "",
@@ -31,14 +32,21 @@ function extractOrderData(body) {
 export default async function handler(req, res) {
   try {
     if (req.method !== "POST") {
-      return res.status(405).send("Method not allowed");
+      return res.status(405).send("Method not allowed.");
     }
 
     const data = extractOrderData(req.body || {});
     const orderId = String(data.orderId || "").trim();
 
     if (!orderId) {
-      return res.status(400).send("Missing order id");
+      return res.status(400).send("Missing order ID.");
+    }
+
+    const existingOrder = await redis.get(`order:${orderId}`);
+
+    // 🔥 منع تكرار التسجيل (مهم جدًا)
+    if (existingOrder) {
+      return res.status(200).send("Order already exists.");
     }
 
     await redis.set(`order:${orderId}`, {
@@ -50,7 +58,7 @@ export default async function handler(req, res) {
       raw: data.raw,
     });
 
-    return res.status(200).send("OK");
+    return res.status(200).send("Order stored successfully.");
   } catch (e) {
     return res.status(500).send("Server error: " + e.message);
   }
