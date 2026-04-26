@@ -6,12 +6,34 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN,
 });
 
+function parseBody(req) {
+  if (!req.body) return {};
+
+  if (typeof req.body === "object") {
+    return req.body;
+  }
+
+  if (typeof req.body === "string") {
+    try {
+      return JSON.parse(req.body);
+    } catch (_) {
+      return Object.fromEntries(new URLSearchParams(req.body));
+    }
+  }
+
+  return {};
+}
+
 function decryptClickBankNotification(notification, iv, secretKey) {
-  const key = crypto.createHash("sha256").update(secretKey).digest();
+  const key = crypto
+    .createHash("sha1")
+    .update(secretKey)
+    .digest("hex")
+    .slice(0, 32);
 
   const decipher = crypto.createDecipheriv(
     "aes-256-cbc",
-    key,
+    Buffer.from(key, "utf8"),
     Buffer.from(iv, "hex")
   );
 
@@ -22,6 +44,8 @@ function decryptClickBankNotification(notification, iv, secretKey) {
 }
 
 function extractOrderData(body) {
+  const lineItem = Array.isArray(body.lineItems) ? body.lineItems[0] || {} : {};
+
   return {
     orderId:
       body.receipt ||
@@ -38,6 +62,7 @@ function extractOrderData(body) {
       body.customer_email ||
       body.customer?.email ||
       body.customer?.billing?.email ||
+      body.customer?.shipping?.email ||
       "",
 
     product:
@@ -45,13 +70,24 @@ function extractOrderData(body) {
       body.item ||
       body.itemNo ||
       body.productId ||
-      body.lineItems?.[0]?.itemNo ||
+      lineItem.itemNo ||
+      lineItem.productId ||
       "",
 
     transactionType: body.transactionType || body.transaction_type || "",
 
     raw: body,
   };
+}
+
+function isSaleTransaction(transactionType) {
+  const value = String(transactionType || "").toUpperCase();
+
+  if (!value) return true;
+
+  return ["SALE", "TEST", "BILL", "REBILL", "TEST_SALE", "TEST-BILL"].includes(
+    value
+  );
 }
 
 export default async function handler(req, res) {
@@ -66,25 +102,27 @@ export default async function handler(req, res) {
       return res.status(500).send("ClickBank secret key is not configured.");
     }
 
-    let body = req.body || {};
+    const encryptedBody = parseBody(req);
 
-    if (typeof body === "string") {
-      body = Object.fromEntries(new URLSearchParams(body));
+    if (!encryptedBody.notification || !encryptedBody.iv) {
+      return res.status(400).send("Invalid ClickBank notification payload.");
     }
 
-    if (body.notification && body.iv) {
-      body = decryptClickBankNotification(
-        body.notification,
-        body.iv,
-        secretKey
-      );
-    }
+    const decryptedBody = decryptClickBankNotification(
+      encryptedBody.notification,
+      encryptedBody.iv,
+      secretKey
+    );
 
-    const data = extractOrderData(body);
+    const data = extractOrderData(decryptedBody);
     const orderId = String(data.orderId || "").trim();
 
     if (!orderId) {
       return res.status(400).send("Missing order ID.");
+    }
+
+    if (!isSaleTransaction(data.transactionType)) {
+      return res.status(200).send("Notification ignored.");
     }
 
     const existingOrder = await redis.get(`order:${orderId}`);
